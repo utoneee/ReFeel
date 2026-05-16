@@ -65,7 +65,7 @@ html,body{height:100%;margin:0;padding:0;background:#13192a}
   flex-shrink:0;height:100%;overflow-y:auto;overflow-x:hidden;
   scrollbar-width:none;display:flex;flex-direction:column;
   align-items:center;justify-content:flex-start;
-  padding:4.5rem 1rem 0.5rem;position:relative;
+  padding:0.8rem 1rem 0.5rem;position:relative;
   background:radial-gradient(ellipse at 50% 30%,#242d48 0%,#1a2138 50%,#13192a 100%);
 }
 .gacha-slide::-webkit-scrollbar{display:none}
@@ -81,8 +81,8 @@ html,body{height:100%;margin:0;padding:0;background:#13192a}
 }
 
 /* Machine SVG */
-.machine-wrap{width:100%;display:flex;justify-content:center;flex-shrink:0;margin-bottom:0.5rem}
-.arm-svg{width:min(260px,62vw);display:block;cursor:pointer;overflow:visible}
+.machine-wrap{width:100%;display:flex;justify-content:center;flex-shrink:0;margin-bottom:0.3rem}
+.arm-svg{width:210px;display:block;cursor:pointer;overflow:visible}
 .ring-1{transform-origin:100px 96px;animation:cosmosRingSpin1 14s linear infinite}
 .ring-2{transform-origin:100px 96px;animation:cosmosRingSpin2 18s linear infinite}
 .ring-3{transform-origin:100px 96px;animation:cosmosRingSpin1 22s linear infinite}
@@ -176,18 +176,31 @@ html,body{height:100%;margin:0;padding:0;background:#13192a}
 .chip.on{border-color:var(--gold-dim);background:var(--gold-glow);color:var(--gold)}
 .chip.lock.on{border-color:var(--lock-border);background:var(--lock-bg);color:var(--lock)}
 
-/* machine cursor hint when result */
-.machine-wrap.can-restart{cursor:pointer}
-.machine-wrap.can-restart .arm-svg{opacity:0.85}
-.machine-wrap.can-restart .arm-svg:hover{opacity:1}
+/* ══ CRANK ══ */
+.crank-wrap{
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  padding:0.65rem 1rem 0.55rem;background:var(--bg);
+  border-top:1px solid rgba(150,118,64,0.25);
+}
+.crank-btn{
+  background:transparent;border:1px solid var(--gold-dim);border-radius:0;
+  padding:0.65rem 2rem;color:var(--cream);
+  font-family:'Noto Serif TC',serif;font-size:0.78rem;
+  cursor:pointer;display:flex;align-items:center;gap:14px;
+  transition:background 0.2s,opacity 0.15s;letter-spacing:0.35em;
+}
+.crank-btn:hover{background:var(--gold-glow)}
+.crank-btn:active{opacity:0.82}
+.crank-btn:disabled{opacity:0.38;cursor:not-allowed}
+.crank-icon{color:var(--gold)}
 
 /* ══ TAB BAR ══ */
 .tab-bar{flex-shrink:0;display:flex;background:var(--surface);border-top:1px solid var(--border)}
 .tab-btn{
-  flex:1;padding:1.1rem 0.2rem 1rem;background:none;
+  flex:1;padding:0.85rem 0.2rem 0.7rem;background:none;
   border:none;border-top:2px solid transparent;color:var(--text-muted);
   font-family:'Noto Serif TC',serif;font-size:0.8rem;letter-spacing:0.06em;
-  cursor:pointer;transition:all 0.15s;margin-top:-1px;min-height:64px;
+  cursor:pointer;transition:all 0.15s;margin-top:-1px;min-height:52px;
 }
 .tab-btn.active{color:var(--gold);border-top-color:var(--gold)}
 
@@ -299,7 +312,7 @@ html,body{height:100%;margin:0;padding:0;background:#13192a}
 @keyframes cosmosStarBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
 @keyframes cosmosTwinkle{0%,100%{opacity:0.15}50%{opacity:0.6}}
 @keyframes cosmosHintBlink{0%,100%{opacity:0.5}50%{opacity:1}}
-@keyframes cosmosHaloPulse{0%{opacity:0.15}40%{opacity:0.55}100%{opacity:0.18}}
+@keyframes cosmosHaloPulse{0%{opacity:0.2;transform:scale(0.9)}50%{opacity:0.55;transform:scale(1.2)}100%{opacity:0.25;transform:scale(1)}}
 @keyframes cosmosCardIn{0%{opacity:0;transform:scale(0.75) rotateY(-60deg)}100%{opacity:1;transform:scale(1) rotateY(0deg)}}
 @keyframes cosmosDrop{0%{opacity:0;transform:translateY(-50px) scale(0.55)}55%{transform:translateY(8px) scale(1.06);opacity:1}78%{transform:translateY(-3px) scale(0.99)}100%{transform:translateY(0) scale(1);opacity:1}}
 </style>
@@ -495,6 +508,15 @@ html,body{height:100%;margin:0;padding:0;background:#13192a}
   </div>
 </div>
 
+<!-- Crank -->
+<div class="crank-wrap">
+  <button class="crank-btn" id="crankBtn">
+    <span class="crank-icon">✦</span>
+    <span id="crankLabel">轉一顆</span>
+    <span class="crank-icon">✦</span>
+  </button>
+</div>
+
 <!-- Tab bar -->
 <div class="tab-bar">
   <button class="tab-btn active" data-i="0" onclick="goSlide(0)">混合</button>
@@ -543,40 +565,28 @@ function buildSphere(idx) {
   }).join('');
 
   const starData = [
-    {x:72, y:72, s:1.0,d:0.0},{x:124,y:68, s:0.8,d:0.4},
+    {x:72,y:72,s:1.0,d:0.0},{x:124,y:68,s:0.8,d:0.4},
     {x:138,y:100,s:1.2,d:0.8},{x:124,y:124,s:0.9,d:0.2},
-    {x:88, y:132,s:1.0,d:1.0},{x:62, y:114,s:0.8,d:0.6},
-    {x:60, y:80, s:1.1,d:1.4},{x:82, y:58, s:0.8,d:0.3},
+    {x:88,y:132,s:1.0,d:1.0},{x:62,y:114,s:0.8,d:0.6},
+    {x:60,y:80,s:1.1,d:1.4},{x:82,y:58,s:0.8,d:0.3},
     {x:116,y:118,s:0.9,d:1.2},
   ];
   const stars = starData.map(function(s){
-    const dx = (100 - s.x).toFixed(1);
-    const dy = (96  - s.y).toFixed(1);
     return '<circle class="arm-star" cx="'+s.x+'" cy="'+s.y+'" r="'+s.s+
-      '" fill="#f3e8c8" opacity="0.45"'+
-      ' data-dx="'+dx+'" data-dy="'+dy+'"'+
-      ' style="animation-delay:'+s.d+'s"/>';
+      '" fill="#f3e8c8" opacity="0.45" style="animation-delay:'+s.d+'s"/>';
   }).join('');
 
-  const hid = 'armHalo' + idx;
-  return '<defs>'+
-    '<radialGradient id="'+gid+'" cx="50%" cy="50%" r="50%">'+
-      '<stop offset="0%" stop-color="#f3e8c8"/>'+
-      '<stop offset="55%" stop-color="#d4af6f"/>'+
-      '<stop offset="100%" stop-color="#967640" stop-opacity="0"/>'+
-    '</radialGradient>'+
-    '<radialGradient id="'+hid+'" cx="50%" cy="50%" r="50%">'+
-      '<stop offset="0%" stop-color="#e8c888" stop-opacity="0.55"/>'+
-      '<stop offset="55%" stop-color="#d4af6f" stop-opacity="0.15"/>'+
-      '<stop offset="100%" stop-color="#d4af6f" stop-opacity="0"/>'+
-    '</radialGradient>'+
-    '</defs>'+
+  return '<defs><radialGradient id="'+gid+'" cx="50%" cy="50%" r="50%">'+
+    '<stop offset="0%" stop-color="#f3e8c8"/>'+
+    '<stop offset="55%" stop-color="#d4af6f"/>'+
+    '<stop offset="100%" stop-color="#967640" stop-opacity="0"/>'+
+    '</radialGradient></defs>'+
     '<ellipse cx="100" cy="206" rx="56" ry="4" fill="#000" opacity="0.45"/>'+
     '<rect x="74" y="190" width="52" height="14" rx="1" fill="#242d48" stroke="#967640" stroke-width="0.6"/>'+
     '<rect x="74" y="190" width="52" height="2" fill="#d4af6f" opacity="0.7"/>'+
     '<rect x="84" y="176" width="32" height="14" rx="0.5" fill="#1a2138" stroke="#967640" stroke-width="0.5"/>'+
     '<line x1="100" y1="16" x2="100" y2="176" stroke="#967640" stroke-width="0.7"/>'+
-    '<circle class="arm-halo" cx="100" cy="96" r="60" fill="url(#'+hid+')" opacity="1"/>'+
+    '<circle class="arm-halo" cx="100" cy="96" r="44" fill="#d4af6f" opacity="0.14"/>'+
     '<ellipse cx="100" cy="96" rx="68" ry="68" fill="none" stroke="#d4af6f" stroke-width="1.4"/>'+
     '<ellipse cx="100" cy="96" rx="68" ry="68" fill="none" stroke="#967640" stroke-width="0.4" stroke-dasharray="2 4" opacity="0.7"/>'+
     ticks+
@@ -663,9 +673,10 @@ function initSlides() {
   var app=document.getElementById('app');
   var hdr=document.querySelector('.hdr');
   var drawer=document.getElementById('customDrawer');
+  var crankWrap=document.querySelector('.crank-wrap');
   var tabBar=document.querySelector('.tab-bar');
   var appH=app.offsetHeight;
-  var usedH=hdr.offsetHeight+tabBar.offsetHeight;
+  var usedH=hdr.offsetHeight+crankWrap.offsetHeight+tabBar.offsetHeight;
   var drawerH=drawer.classList.contains('open')?drawer.scrollHeight:0;
   var vpH=appH-usedH-drawerH;
   var vp=document.getElementById('gvp');
@@ -691,6 +702,7 @@ function goSlide(idx,animate) {
   track.style.transform='translateX(-'+(idx*w)+'px)';
   document.querySelectorAll('.tab-btn').forEach(function(b,i){b.classList.toggle('active',i===idx);});
   document.getElementById('customDrawer').classList.toggle('open',idx===2);
+  bindCrank(idx);
 }
 
 function initPointer() {
@@ -729,29 +741,24 @@ function getPool(idx) {
   return src.filter(function(i){return types.indexOf(i.type)>=0;});
 }
 
-
-function starsConverge(idx) {
-  document.getElementById('svg'+idx).querySelectorAll('.arm-star').forEach(function(s){
-    s.style.transition='transform 0.65s cubic-bezier(0.2,0,0.6,1), opacity 0.5s';
-    s.style.animation='none';
-    var ox = (-parseFloat(s.dataset.dx)*2.8).toFixed(1);
-    var oy = (-parseFloat(s.dataset.dy)*2.8).toFixed(1);
-    s.style.opacity='0';
-    s.style.transform='translate('+ox+'px,'+oy+'px)';
-  });
-}
-function starsRestore(idx) {
-  document.getElementById('svg'+idx).querySelectorAll('.arm-star').forEach(function(s){
-    s.style.transition='transform 0.4s ease, opacity 0.4s';
-    s.style.transform='';
-    s.style.opacity='';
-    setTimeout(function(){s.style.animation='';s.style.transition='';},420);
-  });
+function bindCrank(idx) {
+  var btn=document.getElementById('crankBtn');
+  var lbl=document.getElementById('crankLabel');
+  var state=gState[idx];
+  btn.disabled=(state==='capsule');
+  if(state==='result'){
+    lbl.textContent='再轉一顆';
+    btn.onclick=function(){resetSlide(idx);};
+  } else {
+    lbl.textContent='轉一顆';
+    btn.onclick=function(){startGacha(idx);};
+  }
 }
 
 async function startGacha(idx) {
-  if(gState[idx]==='result'){resetSlide(idx);}
   if(gState[idx]!=='idle')return;
+  var btn=document.getElementById('crankBtn');
+  btn.disabled=true;
 
   document.getElementById('tr'+idx).classList.remove('show');
   document.getElementById('ih'+idx).style.display='none';
@@ -762,10 +769,8 @@ async function startGacha(idx) {
 
   var mw=document.getElementById('mw'+idx);
   mw.classList.add('spinning');
-  starsConverge(idx);
   await sleep(580);
   mw.classList.remove('spinning');
-  starsRestore(idx);
   document.getElementById('sd'+idx).style.display='none';
 
   var c=CAPS[Math.floor(Math.random()*CAPS.length)];
@@ -789,8 +794,10 @@ async function openCap(idx) {
   if(gState[idx]!=='capsule')return;
   var cap=document.getElementById('cap'+idx);
   var th=document.getElementById('th'+idx);
+  var btn=document.getElementById('crankBtn');
 
   th.classList.remove('show');
+  btn.disabled=true;
   cap.classList.add('pop');
   await sleep(360);
   cap.style.display='none';cap.classList.remove('pop','drop','show');
@@ -806,6 +813,8 @@ async function openCap(idx) {
   }
 
   gState[idx]='result';
+  btn.disabled=false;
+  bindCrank(idx);
 }
 
 function showTarotCard(idx,item) {
@@ -891,7 +900,7 @@ function resetSlide(idx) {
   document.getElementById('sd'+idx).style.display='none';
   var cap=document.getElementById('cap'+idx);
   cap.style.display='none';cap.classList.remove('show','drop','pop');
-  starsRestore(idx);
+  bindCrank(idx);
 }
 
 function togOpt(btn){
@@ -1065,6 +1074,7 @@ window.addEventListener('load',function(){
   initSlides();
   initPointer();
   goSlide(0,false);
+  bindCrank(0);
   if(myHeart){document.getElementById('idOv').classList.add('hidden');syncHeart();}
 });
 window.addEventListener('resize',function(){initSlides();goSlide(curSlide,false);});

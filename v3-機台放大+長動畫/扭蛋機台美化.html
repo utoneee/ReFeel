@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>扭蛋機台美化 — 塔羅式宇宙</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #f0eee9; }
+  #root { width: 100%; height: 100%; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="shared.jsx"></script>
+<script type="text/babel" src="variant-cosmos.jsx"></script>
+
+<script type="text/babel">
+function App() {
+  const ART_W = 440;
+  const ART_H = 800;
+  return (
+    <DesignCanvas>
+      <DCSection
+        id="cosmos"
+        title="塔羅式宇宙 · 兩種機台造型"
+        subtitle="深藍 + 燙金 + 米白翻牌。點機台上的旋鈕或下方按鈕完整跑流程。扭蛋會隨機掉「球體」或「符文石」。">
+        <DCArtboard id="sphere" label="A · 天球儀 ARMILLARIA" width={ART_W} height={ART_H}>
+          <VariantCosmos machine="sphere" />
+        </DCArtboard>
+        <DCArtboard id="bottle" label="B · 神祕學扭蛋機 ESENCIA" width={ART_W} height={ART_H}>
+          <VariantCosmos machine="bottle" />
+        </DCArtboard>
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
