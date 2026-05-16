@@ -105,13 +105,13 @@ html,body{height:100%;margin:0;padding:0;background:#13192a}
 .spin-dots span:nth-child(3){animation-delay:.36s}
 @keyframes spinBounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
 
-.capsule{width:80px;height:80px;border-radius:50%;position:relative;cursor:pointer;display:none;flex-shrink:0;overflow:hidden}
-.capsule.show{display:block}
+.capsule{width:80px;height:80px;border-radius:50%;position:relative;cursor:pointer;visibility:hidden;opacity:0;flex-shrink:0;overflow:hidden;will-change:transform,opacity;pointer-events:none}
+.capsule.show{visibility:visible;opacity:1;pointer-events:auto;transition:none}
 .cap-t,.cap-b{position:absolute;left:0;right:0;transition:transform 0.38s ease,opacity 0.38s ease}
 .cap-t{top:0;height:50%;border-radius:40px 40px 0 0}
 .cap-b{bottom:0;height:50%;border-radius:0 0 40px 40px}
 .capsule.pop .cap-t{transform:translateY(-30px) rotate(-12deg);opacity:0}
-.capsule.drop{animation:cosmosDrop 0.5s cubic-bezier(0.22,1,0.36,1) both}
+.capsule.drop{animation:cosmosDrop 0.25s ease-out forwards,capsuleFloat 3s 0.25s ease-in-out infinite}
 
 .tap-hint{
   font-size:0.64rem;color:var(--gold);letter-spacing:0.3em;
@@ -301,7 +301,8 @@ html,body{height:100%;margin:0;padding:0;background:#13192a}
 @keyframes cosmosHintBlink{0%,100%{opacity:0.5}50%{opacity:1}}
 @keyframes cosmosHaloPulse{0%{opacity:0.15}40%{opacity:0.55}100%{opacity:0.18}}
 @keyframes cosmosCardIn{0%{opacity:0;transform:scale(0.75) rotateY(-60deg)}100%{opacity:1;transform:scale(1) rotateY(0deg)}}
-@keyframes cosmosDrop{0%{opacity:0;transform:translateY(-50px) scale(0.55)}55%{transform:translateY(8px) scale(1.06);opacity:1}78%{transform:translateY(-3px) scale(0.99)}100%{transform:translateY(0) scale(1);opacity:1}}
+@keyframes cosmosDrop{0%{transform:translateY(-38px) scale(0.65)}100%{transform:translateY(0) scale(1)}}
+@keyframes capsuleFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 @keyframes planetBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 @keyframes planetComet{from{stroke-dashoffset:0}to{stroke-dashoffset:-292}}
 @keyframes dipperComet{from{stroke-dashoffset:0}to{stroke-dashoffset:-295}}
@@ -988,7 +989,7 @@ async function startGacha(idx) {
   document.getElementById('sd'+idx).style.display='flex';
   document.getElementById('th'+idx).classList.remove('show');
   var cap=document.getElementById('cap'+idx);
-  cap.style.display='none';cap.classList.remove('show','drop','pop');
+  cap.classList.remove('show','drop','pop');
 
   var mw=document.getElementById('mw'+idx);
   mw.classList.add('spinning');
@@ -1003,7 +1004,6 @@ async function startGacha(idx) {
     'radial-gradient(circle at 35% 30%, rgba(255,255,255,0.45), '+c[0]+')';
   document.getElementById('cb'+idx).style.background=
     'radial-gradient(circle at 65% 70%, '+c[1]+', rgba(0,0,0,0.18))';
-  cap.style.display='block';
   void cap.offsetWidth;
   cap.classList.add('drop','show');
   gState[idx]='capsule';
@@ -1021,7 +1021,7 @@ async function openCap(idx) {
   th.classList.remove('show');
   cap.classList.add('pop');
   await sleep(360);
-  cap.style.display='none';cap.classList.remove('pop','drop','show');
+  cap.classList.remove('pop','drop','show');
 
   rolls[idx]++;
   var pool=getPool(idx);
@@ -1118,7 +1118,7 @@ function resetSlide(idx) {
   document.getElementById('ih'+idx).style.display='';
   document.getElementById('sd'+idx).style.display='none';
   var cap=document.getElementById('cap'+idx);
-  cap.style.display='none';cap.classList.remove('show','drop','pop');
+  cap.classList.remove('show','drop','pop');
   machineSpinEnd(idx);
 }
 
