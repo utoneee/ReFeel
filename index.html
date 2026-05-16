@@ -302,6 +302,12 @@ html,body{height:100%;margin:0;padding:0;background:#13192a}
 @keyframes cosmosHaloPulse{0%{opacity:0.15}40%{opacity:0.55}100%{opacity:0.18}}
 @keyframes cosmosCardIn{0%{opacity:0;transform:scale(0.75) rotateY(-60deg)}100%{opacity:1;transform:scale(1) rotateY(0deg)}}
 @keyframes cosmosDrop{0%{opacity:0;transform:translateY(-50px) scale(0.55)}55%{transform:translateY(8px) scale(1.06);opacity:1}78%{transform:translateY(-3px) scale(0.99)}100%{transform:translateY(0) scale(1);opacity:1}}
+@keyframes planetBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes planetComet{from{stroke-dashoffset:0}to{stroke-dashoffset:-292}}
+@keyframes dipperComet{from{stroke-dashoffset:0}to{stroke-dashoffset:-340}}
+@keyframes dipperTwinkle{0%,78%,100%{opacity:0.7;transform:scale(1)}84%{opacity:1;transform:scale(1.3)}90%{opacity:1;transform:scale(1.4)}96%{opacity:0.85;transform:scale(1.1)}}
+@keyframes constFloat{0%,100%{transform:scale(0.65) translateY(0)}50%{transform:scale(0.65) translateY(-3px)}}
+@keyframes planetFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 </style>
 </head>
 <body>
@@ -535,11 +541,18 @@ const CAPS = [
 // ── Build ArmillarySphere SVG ──
 function buildSphere(idx) {
   const gid = 'armCore' + idx;
-  const ticks = Array.from({length:12}).map(function(_,i){
+  const majTicks = Array.from({length:12}).map(function(_,i){
     const a = (i * Math.PI * 2) / 12;
     return '<line x1="'+(100+Math.cos(a)*64).toFixed(1)+'" y1="'+(96+Math.sin(a)*64).toFixed(1)+
-      '" x2="'+(100+Math.cos(a)*68).toFixed(1)+'" y2="'+(96+Math.sin(a)*68).toFixed(1)+
-      '" stroke="#d4af6f" stroke-width="0.6" opacity="0.85"/>';
+      '" x2="'+(100+Math.cos(a)*73).toFixed(1)+'" y2="'+(96+Math.sin(a)*73).toFixed(1)+
+      '" stroke="#d4af6f" stroke-width="1" opacity="0.95"/>';
+  }).join('');
+  const minTicks = Array.from({length:36}).map(function(_,i){
+    if(i%3===0)return '';
+    const a = (i * Math.PI * 2) / 36;
+    return '<line x1="'+(100+Math.cos(a)*66.6).toFixed(1)+'" y1="'+(96+Math.sin(a)*66.6).toFixed(1)+
+      '" x2="'+(100+Math.cos(a)*69.4).toFixed(1)+'" y2="'+(96+Math.sin(a)*69.4).toFixed(1)+
+      '" stroke="#f3e8c8" stroke-width="0.4" opacity="0.7"/>';
   }).join('');
 
   const starData = [
@@ -577,9 +590,16 @@ function buildSphere(idx) {
     '<rect x="84" y="176" width="32" height="14" rx="0.5" fill="#1a2138" stroke="#967640" stroke-width="0.5"/>'+
     '<line x1="100" y1="16" x2="100" y2="176" stroke="#967640" stroke-width="0.7"/>'+
     '<circle class="arm-halo" cx="100" cy="96" r="60" fill="url(#'+hid+')" opacity="1"/>'+
-    '<ellipse cx="100" cy="96" rx="68" ry="68" fill="none" stroke="#d4af6f" stroke-width="1.4"/>'+
-    '<ellipse cx="100" cy="96" rx="68" ry="68" fill="none" stroke="#967640" stroke-width="0.4" stroke-dasharray="2 4" opacity="0.7"/>'+
-    ticks+
+    '<g>'+
+    '<ellipse cx="100" cy="96" rx="68" ry="68" fill="none" stroke="#d4af6f" stroke-width="3"/>'+
+    '<ellipse cx="100" cy="96" rx="64" ry="64" fill="none" stroke="#967640" stroke-width="0.4" stroke-dasharray="2 4" opacity="0.55"/>'+
+    majTicks+minTicks+
+    '<circle cx="100" cy="28" r="1.6" fill="#f3e8c8" stroke="#d4af6f" stroke-width="0.4"/>'+
+    '<circle cx="168" cy="96" r="1.6" fill="#f3e8c8" stroke="#d4af6f" stroke-width="0.4"/>'+
+    '<circle cx="100" cy="164" r="1.6" fill="#f3e8c8" stroke="#d4af6f" stroke-width="0.4"/>'+
+    '<circle cx="32" cy="96" r="1.6" fill="#f3e8c8" stroke="#d4af6f" stroke-width="0.4"/>'+
+    '<ellipse cx="100" cy="96" rx="74" ry="74" fill="none" stroke="#d4af6f" stroke-width="0.5" opacity="0.85"/>'+
+    '</g>'+
     '<g class="ring-1">'+
       '<ellipse cx="100" cy="96" rx="60" ry="24" fill="none" stroke="#d4af6f" stroke-width="1" transform="rotate(-20 100 96)"/>'+
       '<ellipse cx="100" cy="96" rx="60" ry="24" fill="none" stroke="#967640" stroke-width="0.35" transform="rotate(-20 100 96)" stroke-dasharray="3 3"/>'+
@@ -600,6 +620,132 @@ function buildSphere(idx) {
         '<path d="M 112 96 L 102 98 L 100 96 L 102 94 Z"/>'+
       '</g>'+
       '<circle cx="100" cy="96" r="2.2" fill="#f3e8c8"/>'+
+    '</g>'+
+    '<circle cx="100" cy="18" r="2.5" fill="#d4af6f"/>'+
+    '<line x1="100" y1="20" x2="100" y2="24" stroke="#967640" stroke-width="0.6"/>';
+}
+
+function buildPlanet(idx) {
+  var pid='pBody'+idx, phid='pHaloGrad'+idx, pcid='pClip'+idx;
+  return '<defs>'+
+    '<radialGradient id="'+pid+'" cx="32%" cy="32%" r="70%">'+
+      '<stop offset="0%" stop-color="#e8d8b0"/>'+
+      '<stop offset="40%" stop-color="#d4af6f"/>'+
+      '<stop offset="100%" stop-color="#967640"/>'+
+    '</radialGradient>'+
+    '<radialGradient id="'+phid+'" cx="50%" cy="50%" r="55%">'+
+      '<stop offset="0%" stop-color="#e8c888" stop-opacity="0.5"/>'+
+      '<stop offset="60%" stop-color="#d4af6f" stop-opacity="0.13"/>'+
+      '<stop offset="100%" stop-color="#d4af6f" stop-opacity="0"/>'+
+    '</radialGradient>'+
+    '<clipPath id="'+pcid+'"><circle cx="100" cy="96" r="42"/></clipPath>'+
+    '</defs>'+
+    '<ellipse cx="100" cy="206" rx="56" ry="4" fill="#000" opacity="0.45"/>'+
+    '<rect x="74" y="190" width="52" height="14" rx="1" fill="#242d48" stroke="#967640" stroke-width="0.6"/>'+
+    '<rect x="74" y="190" width="52" height="2" fill="#d4af6f" opacity="0.7"/>'+
+    '<rect x="84" y="176" width="32" height="14" rx="0.5" fill="#1a2138" stroke="#967640" stroke-width="0.5"/>'+
+    '<line x1="100" y1="16" x2="100" y2="176" stroke="#967640" stroke-width="0.7"/>'+
+    '<ellipse cx="100" cy="96" rx="76" ry="76" fill="none" stroke="#967640" stroke-width="0.5" stroke-dasharray="2 6" opacity="0.55"/>'+
+    '<circle cx="100" cy="20" r="1.2" fill="#d4af6f"/>'+
+    '<circle cx="176" cy="96" r="1.2" fill="#d4af6f"/>'+
+    '<circle cx="100" cy="172" r="1.2" fill="#d4af6f"/>'+
+    '<circle cx="24" cy="96" r="1.2" fill="#d4af6f"/>'+
+    '<circle id="pHalo'+idx+'" cx="100" cy="96" r="56" fill="url(#'+phid+')" opacity="0.55" style="transition:opacity 0.4s"/>'+
+    '<g style="transform-origin:100px 96px;animation:planetFloat 6s ease-in-out infinite">'+
+      '<path d="M 38.3 102.5 A 62 11 -12 0 1 161.7 89.5" fill="none" stroke="#d4af6f" stroke-width="1.4" stroke-linecap="round"/>'+
+      '<path id="pRH'+idx+'" d="M 38.3 102.5 A 62 11 -12 0 1 161.7 89.5" fill="none" stroke="#e8c888" stroke-width="2.6" stroke-linecap="round" opacity="0" style="transition:opacity 0.35s"/>'+
+      '<circle cx="100" cy="96" r="42" fill="url(#'+pid+')"/>'+
+      '<g clip-path="url(#'+pcid+')" opacity="0.4">'+
+        '<ellipse cx="100" cy="82" rx="42" ry="2.5" fill="#967640"/>'+
+        '<ellipse cx="100" cy="96" rx="42" ry="3.2" fill="#967640"/>'+
+        '<ellipse cx="100" cy="108" rx="42" ry="2" fill="#e8d8b0"/>'+
+        '<ellipse cx="100" cy="118" rx="42" ry="2.8" fill="#967640"/>'+
+      '</g>'+
+      '<ellipse cx="86" cy="80" rx="14" ry="6" fill="#f3e8c8" opacity="0.32"/>'+
+      '<circle cx="100" cy="96" r="42" fill="none" stroke="#967640" stroke-width="0.5" opacity="0.7"/>'+
+      '<path d="M 38.3 102.5 A 62 11 -12 0 0 161.7 89.5" fill="none" stroke="#d4af6f" stroke-width="1.4" stroke-linecap="round"/>'+
+      '<path id="pRF'+idx+'" d="M 38.3 102.5 A 62 11 -12 0 0 161.7 89.5" fill="none" stroke="#e8c888" stroke-width="2.6" stroke-linecap="round" opacity="0" style="transition:opacity 0.35s"/>'+
+      '<path id="pComet'+idx+'" d="M 38.3 102.5 A 62 11 -12 0 1 161.7 89.5 A 62 11 -12 0 1 38.3 102.5" fill="none" stroke="#f3e8c8" stroke-width="1.4" stroke-linecap="round" opacity="0" stroke-dasharray="12 280" style="transition:opacity 0.25s"/>'+
+      '<g style="transform-origin:100px 96px;animation:cosmosRingSpin1 9s linear infinite">'+
+        '<g transform="translate(160,96)">'+
+          '<circle r="8" fill="#f3e8c8" opacity="0.18"/>'+
+          '<circle r="5" fill="#f3e8c8" stroke="#d4af6f" stroke-width="0.6"/>'+
+          '<circle cx="-1.2" cy="-1.2" r="1.2" fill="#967640" opacity="0.45"/>'+
+        '</g>'+
+      '</g>'+
+    '</g>'+
+    '<circle cx="100" cy="18" r="2.5" fill="#d4af6f"/>'+
+    '<line x1="100" y1="20" x2="100" y2="24" stroke="#967640" stroke-width="0.6"/>';
+}
+
+function buildConstellation(idx) {
+  var chid='constHalo'+idx, csgid='constStarB'+idx;
+  var sd=[
+    {x:38,y:132,mag:1.0},{x:60,y:102,mag:0.85},{x:86,y:80,mag:0.7},
+    {x:108,y:66,mag:0.95},{x:142,y:60,mag:1.15},{x:146,y:106,mag:0.9},{x:110,y:112,mag:0.75}
+  ];
+  var pathD='M 38 132 L 60 102 L 86 80 L 108 66 L 142 60 L 146 106 L 110 112 L 108 66';
+  var cMaj=Array.from({length:12}).map(function(_,i){
+    var a=(i*Math.PI*2)/12-Math.PI/2;
+    return '<line x1="'+(100+Math.cos(a)*72).toFixed(1)+'" y1="'+(96+Math.sin(a)*72).toFixed(1)+
+      '" x2="'+(100+Math.cos(a)*78).toFixed(1)+'" y2="'+(96+Math.sin(a)*78).toFixed(1)+
+      '" stroke="#d4af6f" stroke-width="0.8" opacity="0.85"/>';
+  }).join('');
+  var cMin=Array.from({length:36}).map(function(_,i){
+    if(i%3===0)return '';
+    var a=(i*Math.PI*2)/36-Math.PI/2;
+    return '<line x1="'+(100+Math.cos(a)*73.5).toFixed(1)+'" y1="'+(96+Math.sin(a)*73.5).toFixed(1)+
+      '" x2="'+(100+Math.cos(a)*76.5).toFixed(1)+'" y2="'+(96+Math.sin(a)*76.5).toFixed(1)+
+      '" stroke="#f3e8c8" stroke-width="0.3" opacity="0.55"/>';
+  }).join('');
+  var starsHtml=sd.map(function(s,i){
+    var baseR=(3.2*s.mag).toFixed(2);
+    var glowR=(3.2*s.mag*2.3).toFixed(2);
+    var sparkle='';
+    if(s.mag>0.9){
+      var b=3.6*s.mag;
+      sparkle='<g fill="#f3e8c8" stroke="#d4af6f" stroke-width="0.3" transform="translate('+s.x+','+s.y+')">'+
+        '<path d="M 0 '+(-b*1.6).toFixed(1)+' L '+(b*0.4).toFixed(1)+' '+(-b*0.4).toFixed(1)+' L 0 0 L '+(-b*0.4).toFixed(1)+' '+(-b*0.4).toFixed(1)+' Z"/>'+
+        '<path d="M 0 '+(b*1.6).toFixed(1)+' L '+(b*0.4).toFixed(1)+' '+(b*0.4).toFixed(1)+' L 0 0 L '+(-b*0.4).toFixed(1)+' '+(b*0.4).toFixed(1)+' Z"/>'+
+        '<path d="M '+(-b*1.6).toFixed(1)+' 0 L '+(-b*0.4).toFixed(1)+' '+(b*0.4).toFixed(1)+' L 0 0 L '+(-b*0.4).toFixed(1)+' '+(-b*0.4).toFixed(1)+' Z"/>'+
+        '<path d="M '+(b*1.6).toFixed(1)+' 0 L '+(b*0.4).toFixed(1)+' '+(b*0.4).toFixed(1)+' L 0 0 L '+(b*0.4).toFixed(1)+' '+(-b*0.4).toFixed(1)+' Z"/>'+
+        '</g>';
+    }
+    var dur=(4+(i%3)*0.8).toFixed(1), delay=(i*0.55).toFixed(2);
+    return '<g id="cStar'+idx+'_'+i+'" style="transform-origin:'+s.x+'px '+s.y+'px;animation:dipperTwinkle '+dur+'s '+delay+'s ease-in-out infinite">'+
+      '<circle cx="'+s.x+'" cy="'+s.y+'" r="'+glowR+'" fill="url(#'+csgid+')" opacity="0.55"/>'+
+      '<circle cx="'+s.x+'" cy="'+s.y+'" r="'+baseR+'" fill="#f3e8c8"/>'+
+      sparkle+
+      '<circle cx="'+s.x+'" cy="'+s.y+'" r="'+(3.6*s.mag*0.35).toFixed(2)+'" fill="#fff"/>'+
+      '</g>';
+  }).join('');
+  return '<defs>'+
+    '<radialGradient id="'+chid+'" cx="50%" cy="50%" r="60%">'+
+      '<stop offset="0%" stop-color="#e8c888" stop-opacity="0.45"/>'+
+      '<stop offset="100%" stop-color="#d4af6f" stop-opacity="0"/>'+
+    '</radialGradient>'+
+    '<radialGradient id="'+csgid+'" cx="50%" cy="50%" r="50%">'+
+      '<stop offset="0%" stop-color="#fff"/>'+
+      '<stop offset="35%" stop-color="#f3e8c8"/>'+
+      '<stop offset="100%" stop-color="#d4af6f" stop-opacity="0"/>'+
+    '</radialGradient>'+
+    '</defs>'+
+    '<ellipse cx="100" cy="206" rx="56" ry="4" fill="#000" opacity="0.45"/>'+
+    '<rect x="74" y="190" width="52" height="14" rx="1" fill="#242d48" stroke="#967640" stroke-width="0.6"/>'+
+    '<rect x="74" y="190" width="52" height="2" fill="#d4af6f" opacity="0.7"/>'+
+    '<rect x="84" y="176" width="32" height="14" rx="0.5" fill="#1a2138" stroke="#967640" stroke-width="0.5"/>'+
+    '<line x1="100" y1="16" x2="100" y2="176" stroke="#967640" stroke-width="0.7"/>'+
+    '<circle cx="100" cy="96" r="74" fill="none" stroke="#967640" stroke-width="0.5" opacity="0.55"/>'+
+    '<circle cx="100" cy="96" r="78" fill="none" stroke="#d4af6f" stroke-width="0.5" opacity="0.7"/>'+
+    cMaj+cMin+
+    '<circle cx="100" cy="18" r="1.6" fill="#f3e8c8" stroke="#d4af6f" stroke-width="0.4"/>'+
+    '<circle cx="178" cy="96" r="1.6" fill="#f3e8c8" stroke="#d4af6f" stroke-width="0.4"/>'+
+    '<circle cx="100" cy="174" r="1.6" fill="#f3e8c8" stroke="#d4af6f" stroke-width="0.4"/>'+
+    '<circle cx="22" cy="96" r="1.6" fill="#f3e8c8" stroke="#d4af6f" stroke-width="0.4"/>'+
+    '<g id="constBody'+idx+'" style="transform-origin:100px 96px;opacity:0.6;animation:constFloat 4.2s ease-in-out infinite">'+
+    '<path d="'+pathD+'" fill="none" stroke="#967640" stroke-width="0.5" opacity="0.45" stroke-linecap="round" stroke-linejoin="round"/>'+
+    '<path id="cComet'+idx+'" d="'+pathD+'" fill="none" stroke="#f3e8c8" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="35 270" opacity="0.55" style="animation:dipperComet 7s linear infinite"/>'+
+    starsHtml+
     '</g>'+
     '<circle cx="100" cy="18" r="2.5" fill="#d4af6f"/>'+
     '<line x1="100" y1="20" x2="100" y2="24" stroke="#967640" stroke-width="0.6"/>';
@@ -731,22 +877,95 @@ function getPool(idx) {
 
 
 function starsConverge(idx) {
-  document.getElementById('svg'+idx).querySelectorAll('.arm-star').forEach(function(s){
-    s.style.transition='transform 0.65s cubic-bezier(0.2,0,0.6,1), opacity 0.5s';
+  var svg=document.getElementById('svg'+idx);
+  var stars=svg.querySelectorAll('.arm-star');
+  var core=svg.querySelector('.core-star');
+  // Phase 1: stars glow bright + converge to center; core expands
+  stars.forEach(function(s){
+    s.style.transition='transform 0.52s cubic-bezier(0.5,0,0.8,1), opacity 0.2s';
     s.style.animation='none';
-    var ox = (-parseFloat(s.dataset.dx)*2.8).toFixed(1);
-    var oy = (-parseFloat(s.dataset.dy)*2.8).toFixed(1);
-    s.style.opacity='0';
-    s.style.transform='translate('+ox+'px,'+oy+'px)';
+    s.style.opacity='1';
+    s.style.transformOrigin=s.getAttribute('cx')+'px '+s.getAttribute('cy')+'px';
+    s.style.transform='translate('+s.dataset.dx+'px,'+s.dataset.dy+'px) scale(1.15)';
   });
+  if(core){
+    core.style.animation='none';
+    core.style.transformOrigin='100px 96px';
+    core.style.transition='transform 0.52s cubic-bezier(0.3,0,0.5,1.4)';
+    core.style.transform='scale(1.5)';
+  }
+  // Phase 2→3: after convergence, scatter back to original positions
+  setTimeout(function(){
+    stars.forEach(function(s){
+      s.style.transition='transform 0.5s cubic-bezier(0.2,1,0.4,1), opacity 0.45s';
+      s.style.transformOrigin='';
+      s.style.transform='translate(0,0)';
+      s.style.opacity='0.45';
+    });
+    if(core){
+      core.style.transition='transform 0.45s cubic-bezier(0.2,1,0.4,1)';
+      core.style.transform='scale(1)';
+    }
+  }, 620);
 }
 function starsRestore(idx) {
-  document.getElementById('svg'+idx).querySelectorAll('.arm-star').forEach(function(s){
-    s.style.transition='transform 0.4s ease, opacity 0.4s';
-    s.style.transform='';
-    s.style.opacity='';
-    setTimeout(function(){s.style.animation='';s.style.transition='';},420);
+  var svg=document.getElementById('svg'+idx);
+  svg.querySelectorAll('.arm-star').forEach(function(s){
+    s.style.transition='transform 0.3s ease, opacity 0.3s';
+    s.style.transform='';s.style.opacity='';
+    setTimeout(function(){s.style.animation='';s.style.transition='';},320);
   });
+  var core=svg.querySelector('.core-star');
+  if(core){
+    core.style.transition='transform 0.3s ease';
+    core.style.transform='scale(1)';
+    setTimeout(function(){core.style.animation='';core.style.transition='';core.style.transform='';},320);
+  }
+}
+
+function planetSpinStart(idx) {
+  var h=document.getElementById('pHalo'+idx);
+  if(h){h.style.opacity='0.85';h.style.animation='cosmosHaloPulse 0.6s ease-out forwards';}
+  var rh=document.getElementById('pRH'+idx);if(rh)rh.style.opacity='1';
+  var rf=document.getElementById('pRF'+idx);if(rf)rf.style.opacity='1';
+  var c=document.getElementById('pComet'+idx);
+  if(c){c.style.opacity='1';c.style.animation='planetComet 0.9s linear infinite';}
+}
+function planetSpinEnd(idx) {
+  var h=document.getElementById('pHalo'+idx);
+  if(h){h.style.opacity='0.55';h.style.animation='none';}
+  var rh=document.getElementById('pRH'+idx);if(rh)rh.style.opacity='0';
+  var rf=document.getElementById('pRF'+idx);if(rf)rf.style.opacity='0';
+  var c=document.getElementById('pComet'+idx);
+  if(c){c.style.opacity='0';c.style.animation='none';}
+}
+
+function constSpinStart(idx) {
+  var body=document.getElementById('constBody'+idx);
+  if(body)body.style.opacity='1';
+  for(var i=0;i<7;i++){
+    var s=document.getElementById('cStar'+idx+'_'+i);
+    if(s)s.style.filter='drop-shadow(0 0 5px #e8c888)';
+  }
+}
+function constSpinEnd(idx) {
+  var body=document.getElementById('constBody'+idx);
+  if(body)body.style.opacity='0.6';
+  for(var i=0;i<7;i++){
+    var s=document.getElementById('cStar'+idx+'_'+i);
+    if(s)s.style.filter='none';
+  }
+}
+
+function machineSpinStart(idx) {
+  if(idx===0)starsConverge(idx);
+  else if(idx===1)planetSpinStart(idx);
+  else constSpinStart(idx);
+}
+function machineSpinEnd(idx) {
+  if(idx===0)starsRestore(idx);
+  else if(idx===1)planetSpinEnd(idx);
+  else constSpinEnd(idx);
 }
 
 async function startGacha(idx) {
@@ -762,10 +981,10 @@ async function startGacha(idx) {
 
   var mw=document.getElementById('mw'+idx);
   mw.classList.add('spinning');
-  starsConverge(idx);
+  machineSpinStart(idx);
   await sleep(580);
   mw.classList.remove('spinning');
-  starsRestore(idx);
+  machineSpinEnd(idx);
   document.getElementById('sd'+idx).style.display='none';
 
   var c=CAPS[Math.floor(Math.random()*CAPS.length)];
@@ -781,8 +1000,6 @@ async function startGacha(idx) {
   await sleep(420);
   document.getElementById('th'+idx).classList.add('show');
   cap.onclick=function(){openCap(idx);};
-  btn.disabled=false;
-  bindCrank(idx);
 }
 
 async function openCap(idx) {
@@ -891,7 +1108,7 @@ function resetSlide(idx) {
   document.getElementById('sd'+idx).style.display='none';
   var cap=document.getElementById('cap'+idx);
   cap.style.display='none';cap.classList.remove('show','drop','pop');
-  starsRestore(idx);
+  machineSpinEnd(idx);
 }
 
 function togOpt(btn){
@@ -1059,9 +1276,9 @@ function showToast(msg){var t=document.getElementById('toast');t.textContent=msg
 
 // ── Init ──
 window.addEventListener('load',function(){
-  [0,1,2].forEach(function(i){
-    document.getElementById('svg'+i).innerHTML=buildSphere(i);
-  });
+  document.getElementById('svg0').innerHTML=buildSphere(0);
+  document.getElementById('svg1').innerHTML=buildPlanet(1);
+  document.getElementById('svg2').innerHTML=buildConstellation(2);
   initSlides();
   initPointer();
   goSlide(0,false);
