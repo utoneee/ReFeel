@@ -304,9 +304,9 @@ html,body{height:100%;margin:0;padding:0;background:#13192a}
 @keyframes cosmosDrop{0%{opacity:0;transform:translateY(-50px) scale(0.55)}55%{transform:translateY(8px) scale(1.06);opacity:1}78%{transform:translateY(-3px) scale(0.99)}100%{transform:translateY(0) scale(1);opacity:1}}
 @keyframes planetBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 @keyframes planetComet{from{stroke-dashoffset:0}to{stroke-dashoffset:-292}}
-@keyframes dipperComet{from{stroke-dashoffset:0}to{stroke-dashoffset:-340}}
+@keyframes dipperComet{from{stroke-dashoffset:0}to{stroke-dashoffset:-295}}
 @keyframes dipperTwinkle{0%,78%,100%{opacity:0.7;transform:scale(1)}84%{opacity:1;transform:scale(1.3)}90%{opacity:1;transform:scale(1.4)}96%{opacity:0.85;transform:scale(1.1)}}
-@keyframes constFloat{0%,100%{transform:scale(0.65) translateY(0)}50%{transform:scale(0.65) translateY(-3px)}}
+@keyframes constFloat{0%,100%{transform:scale(0.78) translateY(0)}50%{transform:scale(0.78) translateY(-3px)}}
 @keyframes planetFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 </style>
 </head>
@@ -681,10 +681,10 @@ function buildPlanet(idx) {
 function buildConstellation(idx) {
   var chid='constHalo'+idx, csgid='constStarB'+idx;
   var sd=[
-    {x:38,y:132,mag:1.0},{x:60,y:102,mag:0.85},{x:86,y:80,mag:0.7},
-    {x:108,y:66,mag:0.95},{x:142,y:60,mag:1.15},{x:146,y:106,mag:0.9},{x:110,y:112,mag:0.75}
+    {x:72,y:48,mag:1.1},{x:128,y:62,mag:0.85},{x:150,y:96,mag:1.0},
+    {x:68,y:138,mag:0.9},{x:46,y:106,mag:0.8}
   ];
-  var pathD='M 38 132 L 60 102 L 86 80 L 108 66 L 142 60 L 146 106 L 110 112 L 108 66';
+  var pathD='M 72 48 L 128 62 L 150 96 L 68 138 L 46 106 Z';
   var cMaj=Array.from({length:12}).map(function(_,i){
     var a=(i*Math.PI*2)/12-Math.PI/2;
     return '<line x1="'+(100+Math.cos(a)*72).toFixed(1)+'" y1="'+(96+Math.sin(a)*72).toFixed(1)+
@@ -744,7 +744,7 @@ function buildConstellation(idx) {
     '<circle cx="22" cy="96" r="1.6" fill="#f3e8c8" stroke="#d4af6f" stroke-width="0.4"/>'+
     '<g id="constBody'+idx+'" style="transform-origin:100px 96px;opacity:0.6;animation:constFloat 4.2s ease-in-out infinite">'+
     '<path d="'+pathD+'" fill="none" stroke="#967640" stroke-width="0.5" opacity="0.45" stroke-linecap="round" stroke-linejoin="round"/>'+
-    '<path id="cComet'+idx+'" d="'+pathD+'" fill="none" stroke="#f3e8c8" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="35 270" opacity="0.55" style="animation:dipperComet 7s linear infinite"/>'+
+    '<path id="cComet'+idx+'" d="'+pathD+'" fill="none" stroke="#f3e8c8" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="35 260" opacity="0.55" style="animation:dipperComet 7s linear infinite"/>'+
     starsHtml+
     '</g>'+
     '<circle cx="100" cy="18" r="2.5" fill="#d4af6f"/>'+
@@ -943,17 +943,28 @@ function planetSpinEnd(idx) {
 function constSpinStart(idx) {
   var body=document.getElementById('constBody'+idx);
   if(body)body.style.opacity='1';
-  for(var i=0;i<7;i++){
+  for(var i=0;i<5;i++){
     var s=document.getElementById('cStar'+idx+'_'+i);
-    if(s)s.style.filter='drop-shadow(0 0 5px #e8c888)';
+    if(s){
+      s.style.animation='none';
+      s.style.opacity='1';
+      s.style.transform='scale(1.25)';
+      s.style.filter='drop-shadow(0 0 6px #e8c888)';
+    }
   }
 }
 function constSpinEnd(idx) {
   var body=document.getElementById('constBody'+idx);
   if(body)body.style.opacity='0.6';
-  for(var i=0;i<7;i++){
+  for(var i=0;i<5;i++){
     var s=document.getElementById('cStar'+idx+'_'+i);
-    if(s)s.style.filter='none';
+    if(s){
+      s.style.filter='none';
+      s.style.transform='';
+      s.style.opacity='';
+      var dur=(4+(i%3)*0.8).toFixed(1), delay=(i*0.55).toFixed(2);
+      s.style.animation='dipperTwinkle '+dur+'s '+delay+'s ease-in-out infinite';
+    }
   }
 }
 
