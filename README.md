@@ -13,9 +13,13 @@
 - **內容類型**：圖片、GIF、YouTube 影片連結、文字語錄
 - **管理牆**：瀏覽、篩選、刪除所有扭蛋
 
+## 使用網址
+
+https://utoneee.github.io/ReFeel/
+
 ## 使用方式
 
-直接開啟 `index.html`，或部署到靜態主機後用同一個網址分享給朋友。
+直接開啟網址，或 clone 後開啟 `index.html`。
 
 ## 技術
 
