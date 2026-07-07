@@ -1,0 +1,9 @@
+# 版本備份與過程檔只存本機，不推 GitHub
+*-v*.html
+_archive/
+_notes/
+_drafts/
+firebase-handoff.md
+A款機台延伸/
+v3-機台放大+長動畫/
+design-canvas.jsx
